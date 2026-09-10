@@ -1,0 +1,290 @@
+@import "tailwindcss";
+
+/**
+ * Tokens extraidos del sitio de origen con getComputedStyle sobre el DOM
+ * renderizado, no a ojo. Los nombres describen el material, no el uso, para
+ * que un cambio de marca sea un cambio de valores y no de nombres.
+ */
+@theme {
+  --color-sage: #d9d4c7; /* fondo base */
+  --color-sage-deep: #cfc9b9; /* separadores sobre sage */
+  --color-cream: #f7ecdf; /* superficies elevadas */
+  --color-clay: #986a3e; /* acento decorativo */
+  --color-bark: #70441b; /* CTA solida y etiquetas */
+  --color-cocoa: #633b2c; /* texto de cuerpo */
+  --color-ink: #101010;
+
+  --font-display: "Hedvig Letters Serif", ui-serif, Georgia, serif;
+  --font-sans: "General Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --radius-card: 30px;
+  --radius-media: 20px;
+  --radius-pill: 100px;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* La cabecera es sticky: sin esto los anclajes quedan debajo de ella. */
+    scroll-padding-top: 6rem;
+  }
+
+  /* Respetar a quien pidio menos movimiento apagando TODO lo que se mueve:
+     el scroll suave, la cinta de tratamientos y las revelaciones al entrar. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    background-color: var(--color-sage);
+    color: var(--color-cocoa);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    color: var(--color-ink);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* El original pierde por completo el foco de teclado. Un anillo unico y
+     visible sobre los dos fondos de la paleta. */
+  :focus-visible {
+    outline: 2px solid var(--color-bark);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+@layer utilities {
+  /* Envoltura estandar: mismo maximo y mismos margenes laterales en todas
+     las secciones, para que nada se desalinee entre bloques. */
+  .shell {
+    width: 100%;
+    max-width: 78rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .shell {
+      padding-inline: 2rem;
+    }
+  }
+
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-bark);
+  }
+}
+
+/* --- Cinta de tratamientos ------------------------------------------------
+   Dos copias identicas de la lista desplazandose -50%: al terminar el ciclo
+   la segunda copia esta exactamente donde estaba la primera, asi el bucle no
+   tiene salto. Es CSS puro; no cuesta JS ni provoca reflow. */
+@keyframes ticker {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.ticker-track {
+  animation: ticker 45s linear infinite;
+  will-change: transform;
+}
+
+/* --- Revelacion al entrar en viewport -------------------------------------
+   El estado inicial se aplica solo cuando JS confirmo que va a observar el
+   elemento (data-reveal="armed"). Sin JS, el contenido se ve siempre. */
+[data-reveal="armed"] {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+[data-reveal="shown"] {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- Rueda de tratamientos -------------------------------------------------
+   Geometria: circunferencia cuyo centro cae exactamente en el borde inferior
+   de la tarjeta. Cada pill se ancla por su extremo INTERIOR a `--inner-r` y
+   crece hacia fuera segun su texto — por eso los pills tienen largos distintos,
+   igual que en el original.
+
+   Toda la mecanica es CSS. Este bloque no envia un solo byte de JavaScript. */
+.wheel {
+  --inner-r: 74px; /* radio al extremo interior del pill */
+  --pill-l: 168px; /* largo del pill (direccion radial) — igual para todos */
+  --pill-t: 30px; /* grosor del pill (direccion tangencial) */
+  --disc: 210px; /* diametro del disco central */
+  --spin: 80s; /* una vuelta completa; medido del original */
+  --veil: 0.18; /* intensidad del velo radial; unico dial de legibilidad */
+}
+
+@media (min-width: 768px) {
+  .wheel {
+    --inner-r: 96px;
+    --pill-l: 200px;
+    --pill-t: 38px;
+    --disc: 230px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .wheel {
+    --inner-r: 120px;
+    --pill-l: 232px;
+    --pill-t: 40px;
+    --disc: 260px;
+  }
+}
+
+@keyframes wheel-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Punto de dimension cero en el borde inferior: es el eje de la rueda.
+   Todos los pills se posicionan respecto a el. */
+.wheel-hub {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  z-index: 2;
+  width: 0;
+  height: 0;
+  animation: wheel-spin var(--spin) linear infinite;
+}
+
+/* Cortesia elemental: si alguien intenta leer un pill, el giro se detiene.
+   focus-within cubre la navegacion por teclado, no solo el raton. */
+.wheel:hover .wheel-hub,
+.wheel:focus-within .wheel-hub {
+  animation-play-state: paused;
+}
+
+/**
+ * La cadena de transformaciones, leida de derecha a izquierda (que es el orden
+ * en que se aplican):
+ *   translateX(-100%)  el extremo DERECHO del pill queda sobre el eje
+ *   rotate(90deg)      el pill se vuelve radial; su extremo izquierdo apunta
+ *                      hacia fuera, que es donde va la miniatura
+ *   translateY(-inner) lo empuja hasta el radio interior
+ *   rotate(--a)        lo lleva a su posicion en la circunferencia
+ * Con transform-origin en 0 50% el punto fijo es el eje de la rueda.
+ */
+.wheel-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: var(--pill-t);
+  margin-top: calc(var(--pill-t) / -2);
+  transform-origin: 0 50%;
+  transform: rotate(var(--a)) translateY(calc(-1 * var(--inner-r)))
+    rotate(90deg) translateX(-100%);
+  white-space: nowrap;
+
+  /* Todos los pills miden lo mismo, como en el original: los extremos interior
+     y exterior caen sobre dos circunferencias limpias. Los nombres que no
+     caben se recortan — el catalogo legible esta en Servicios, no aqui. */
+  width: var(--pill-l);
+  overflow: hidden;
+
+  /* Cristal: practicamente sin color propio. Lo que separa el pill del fondo
+     no es un relleno oscuro sino el desenfoque y el filo claro del borde. */
+  background: rgba(152, 106, 62, 0.12);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+/* El texto no debe estirar el pill: sin esto, un flex item con `nowrap`
+   impone su ancho minimo y rompe el largo uniforme. */
+.wheel-pill span {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Los navegadores sin backdrop-filter no difuminan nada, y entonces el tinte
+   de 0.26 deja el texto ilegible sobre piel clara. Ahi se compensa con un
+   relleno opaco. `not all and` es la forma canonica de negar un @supports. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .wheel-pill {
+    background: rgba(30, 18, 10, 0.5);
+  }
+}
+
+.wheel-pill span {
+  /* No cuenta para WCAG, pero en la practica es lo que salva las letras cuando
+     un pill pasa por encima de una zona muy clara de la fotografia. */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+/* Velo radial centrado en el eje de la rueda. Se apoya en las mismas variables
+   de geometria que los pills, de modo que al cambiar `--inner-r` el oscurecido
+   sigue cubriendo exactamente la zona ocupada, en cualquier breakpoint.
+   Se desvanece antes de las esquinas: la fotografia sigue limpia alrededor. */
+.wheel-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(
+    circle at 50% 100%,
+    rgba(16, 16, 16, var(--veil)) 0,
+    rgba(16, 16, 16, var(--veil)) calc(var(--inner-r) + var(--pill-l)),
+    rgba(16, 16, 16, 0) calc(var(--inner-r) + var(--pill-l) + 90px)
+  );
+}
+
+/* Cubre la convergencia de los radios. Sin el, los extremos interiores se
+   solapan en un amasijo ilegible: es funcional, no decorativo.
+   Solo se ve su mitad superior; la inferior la recorta la tarjeta. */
+.wheel-disc {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  z-index: 3;
+  display: flex;
+  width: var(--disc);
+  height: var(--disc);
+  margin-bottom: calc(var(--disc) / -2);
+  margin-left: calc(var(--disc) / -2);
+  /* Empuja el contenido a la mitad superior, la unica visible.
+     Longitud absoluta, NO un porcentaje: los porcentajes de padding se
+     resuelven contra el ancho del bloque contenedor (aqui la tarjeta entera),
+     no contra el propio elemento — con 50% el disco se deformaba en un huevo. */
+  padding-bottom: calc(var(--disc) / 2);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
