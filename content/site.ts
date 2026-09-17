@@ -17,7 +17,7 @@ const CDN = "https://framerusercontent.com/images";
 export const clinic = {
   // TODO: nombre comercial real
   name: "Renova",
-  legalName: "Renova Clínica de Cirugía Plástica",
+  legalName: "Renova Studio",
   tagline: "Cirugía plástica y medicina estética",
   /** Dominio de produccion. Alimenta canonical, Open Graph y sitemap. */
   // TODO: dominio real
@@ -84,18 +84,23 @@ export const hero = {
   rating: { score: "5.0", count: 86 },
 } as const;
 
-/** Cinta de tratamientos que recorre el ancho de la pantalla. */
+/**
+ * Lista oficial de la clinica para la web (PDF "Productos Renova", pag. 4).
+ * Son 16 elementos, igual que los 16 radios de la rueda del original: por eso
+ * la rueda vuelve a quedar a 22.5 grados entre pills.
+ */
 export const treatmentTicker = [
+  "Servicios de Cirugía Plástica y Reconstructiva",
   "Toxina Botulínica",
   "Labios (Kiss)",
-  "Armonización Facial",
+  "Armonización Facial (mentón, mandíbula y contorno)",
   "Sculptra",
   "Radiesse (Cuello)",
   "Duraform",
-  "Skinbooster NCTF Ojeras",
-  "Skinbooster NCTF Tercio Medio",
+  "Skinbooster (NCTF) Ojeras",
+  "Skinbooster (NCTF) Tercio Medio",
   "Exosomas",
-  "PDRN",
+  "PDRN (Polidesoxirribonucleótidos)",
   "Serenity Glow",
   "Limpieza Facial Profunda",
   "Hidrodermoabrasión",
@@ -103,35 +108,53 @@ export const treatmentTicker = [
   "Limpieza de Espalda",
 ] as const;
 
+export type Treatment = {
+  name: string;
+  /** Precio en MXN. Ausente = se cotiza tras valoracion (cirugia). */
+  price?: number;
+  /** Unidad de cobro tal como la escribe la clinica: "por sesión", etc. */
+  unit?: string;
+  /** Agrupador clinico, p. ej. los dos tratamientos de acido hialuronico. */
+  group?: string;
+};
+
 export type Service = {
   slug: string;
   title: string;
   summary: string;
-  treatments: string[];
+  treatments: Treatment[];
+  /** Aviso que la clinica exige mostrar junto al bloque. */
+  note?: string;
   image: string;
   imageAlt: string;
 };
 
 /**
- * El sitio de origen repetia literalmente la misma descripcion en tres de las
- * cinco tarjetas y no decia que incluia cada categoria. Aqui cada bloque tiene
- * texto propio y lista los tratamientos reales que le corresponden.
+ * Catalogo y precios tomados literalmente del PDF de la clinica.
+ * Cualquier cambio de precio se hace aqui y se propaga a las tarjetas, al
+ * selector del formulario y a los datos estructurados (Offer) a la vez.
  */
 export const services: Service[] = [
   {
     slug: "cirugia-plastica",
     title: "Cirugía Plástica y Reconstructiva",
     summary:
-      "Procedimientos quirúrgicos planeados en consulta, con estudio previo, quirófano certificado y seguimiento postoperatorio incluido.",
-    // TODO: confirmar el catalogo quirurgico que realmente se ofrece
+      "Procedimientos quirúrgicos planeados en consulta, con estudio previo y seguimiento postoperatorio.",
+    // Sin precio publicado a proposito: el costo depende de la valoracion.
     treatments: [
-      "Rinoplastia",
-      "Mamoplastia de aumento y reducción",
-      "Lipoescultura",
-      "Abdominoplastia",
-      "Blefaroplastia",
-      "Reconstrucción mamaria",
+      { name: "Abdominoplastia" },
+      { name: "Aumento mamario con implantes" },
+      { name: "Blefaroplastia" },
+      { name: "Braquioplastia" },
+      { name: "Cirugía de cicatrices de cara y cuello" },
+      { name: "Ginecomastia" },
+      { name: "Lipoabdominoplastia" },
+      { name: "Liposucción corporal (abdomen y espalda)" },
+      { name: "Lipotransferencia glútea (BBL)" },
+      { name: "Reducción mamaria" },
+      { name: "Rinoplastia" },
     ],
+    note: "Todos los procedimientos quirúrgicos requieren valoración médica previa.",
     image: `${CDN}/vZWId5rca0iP0PQazENoHugDL5c.jpg`,
     imageAlt: "Equipo quirúrgico durante la planeación de un procedimiento",
   },
@@ -141,10 +164,23 @@ export const services: Service[] = [
     summary:
       "Ajustes milimétricos que descansan la expresión y equilibran las proporciones del rostro sin borrar tus rasgos.",
     treatments: [
-      "Toxina Botulínica",
-      "Labios (Kiss)",
-      "Armonización de mentón, mandíbula y contorno",
+      { name: "Toxina Botulínica", price: 110, unit: "por unidad" },
+      {
+        name: "Labios (Kiss)",
+        price: 7000,
+        unit: "por jeringa",
+        group: "Ácido hialurónico",
+      },
+      {
+        name: "Armonización Facial (mentón, mandíbula y contorno)",
+        price: 4000,
+        unit: "por jeringa",
+        group: "Ácido hialurónico",
+      },
     ],
+    // El precio por unidad no dice cuanto cuesta un tratamiento: las unidades
+    // dependen de la zona y del paciente. Sin esta nota, $110 se lee como total.
+    note: "La cantidad de unidades o jeringas se define en tu valoración.",
     image: `${CDN}/x5bU5fSGGaNxXqI2iAQqSZi8nA4.jpg`,
     imageAlt: "Aplicación de tratamiento inyectable facial en consultorio",
   },
@@ -153,7 +189,11 @@ export const services: Service[] = [
     title: "Bioestimuladores de Colágeno",
     summary:
       "En lugar de rellenar, estimulan que tu piel produzca colágeno propio. El resultado aparece de forma gradual y sostiene la firmeza por más tiempo.",
-    treatments: ["Sculptra", "Radiesse (Cuello)", "Duraform"],
+    treatments: [
+      { name: "Sculptra", price: 19800, unit: "por sesión" },
+      { name: "Radiesse (Cuello)", price: 10000, unit: "por sesión" },
+      { name: "Duraform", price: 11885, unit: "por sesión" },
+    ],
     image: `${CDN}/ipAbYHifCDoQsFyitpmqxk7yTIQ.jpg`,
     imageAlt: "Detalle de piel firme tras tratamiento con bioestimuladores",
   },
@@ -163,11 +203,18 @@ export const services: Service[] = [
     summary:
       "Terapias de calidad de piel para ojeras, tercio medio y textura, apoyadas en biotecnología regenerativa.",
     treatments: [
-      "Skinbooster (NCTF) Ojeras",
-      "Skinbooster (NCTF) Tercio Medio",
-      "Exosomas",
-      "PDRN (Polidesoxirribonucleótidos)",
-      "Serenity Glow",
+      { name: "Skinbooster (NCTF) Ojeras", price: 3000, unit: "por sesión" },
+      {
+        name: "Skinbooster (NCTF) Tercio Medio",
+        price: 5000,
+        unit: "por sesión",
+      },
+      { name: "Exosomas", price: 4000, unit: "por sesión" },
+      {
+        name: "PDRN (Polidesoxirribonucleótidos)",
+        price: 3000,
+        unit: "por sesión",
+      },
     ],
     image: `${CDN}/46kLkViNx68JPqB0G5rji3IA.jpg`,
     imageAlt: "Preparación de tratamiento de regeneración cutánea",
@@ -177,16 +224,44 @@ export const services: Service[] = [
     title: "Faciales Clínicos y Cuidado de la Piel",
     summary:
       "Protocolos de mantenimiento realizados por personal clínico, no cosmético: limpieza profunda, renovación y control de brotes.",
+    // El PDF no indica unidad para este bloque; se asume precio por sesion.
+    // TODO: confirmar con la clinica.
     treatments: [
-      "Limpieza Facial Profunda",
-      "Hidrodermoabrasión",
-      "Microneedling con Exosomas",
-      "Limpieza de Espalda",
+      { name: "Serenity Glow", price: 1200 },
+      { name: "Limpieza Facial Profunda", price: 1600 },
+      { name: "Hidrodermoabrasión", price: 1900 },
+      { name: "Microneedling con Exosomas", price: 3500 },
+      { name: "Limpieza de Espalda", price: 3200 },
     ],
     image: `${CDN}/azUXPD7iJOKsfqLM48TJJitzBCs.jpg`,
     imageAlt: "Sesión de limpieza facial profunda en cabina clínica",
   },
 ];
+
+/**
+ * Plan de mantenimiento anual. El PDF lo marca "aún por confirmar términos y
+ * condiciones", asi que NO se publica: anunciar un plan con precio y sin
+ * terminos definidos compromete a la clinica ante Profeco.
+ * Para mostrarlo basta con `isPublished: true` una vez cerrados los terminos.
+ */
+export const maintenancePlan = {
+  isPublished: false,
+  title: "Plan de Mantenimiento Anual",
+  body: "Asegura el cuidado continuo de tu piel durante todo el año con un plan mensual especializado.",
+  items: [
+    { name: "Sesión de activación (1.ª sesión)", price: 2000 },
+    { name: "Sesiones subsecuentes (mensuales)", price: 1500 },
+  ],
+} as const;
+
+/** "$7,000 MXN". Sin centavos: ningun precio del catalogo los usa. */
+export function formatPrice(amount: number): string {
+  return `${new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "MXN",
+    maximumFractionDigits: 0,
+  }).format(amount)} MXN`;
+}
 
 export const about = {
   eyebrow: "Cómo trabajamos",
@@ -278,8 +353,8 @@ export const faq = [
     a: "Los inyectables se realizan con anestesia tópica y la molestia es comparable a un piquete breve. Los procedimientos quirúrgicos se hacen bajo anestesia con médico anestesiólogo presente. En ambos casos recibes indicaciones de manejo del dolor para los días posteriores.",
   },
   {
-    q: "¿Cuánto cuesta y puedo pagar a plazos?",
-    a: "El costo se cotiza en consulta porque depende del volumen de producto y de la complejidad de tu caso; una cifra dada por teléfono sin verte sería inventada. Manejamos pago con tarjeta y meses sin intereses en procedimientos quirúrgicos.",
+    q: "¿Cuánto cuesta?",
+    a: "Los tratamientos faciales, inyectables y de calidad de piel tienen precio publicado en la sección de servicios. Toxina botulínica y ácido hialurónico se cobran por unidad o jeringa, así que el total depende de cuánto producto requiera tu caso. Los procedimientos quirúrgicos se cotizan después de la valoración médica.",
   },
   {
     q: "¿Cuánto dura la recuperación?",
@@ -293,7 +368,7 @@ export const faq = [
 
 export const finalCta = {
   title: "Empecemos por una consulta",
-  body: "Cuéntanos qué te gustaría cambiar. La valoración inicial es sin costo y sin compromiso de agendar tratamiento.",
+  body: "Cuéntanos qué te gustaría cambiar y te orientamos sobre el tratamiento adecuado para tu caso.",
 } as const;
 
 /** Opciones del selector del formulario. Derivadas del catalogo para que

@@ -62,7 +62,7 @@ export function SiteFooter() {
           <h2 className="text-sm font-semibold text-ink">Tratamientos</h2>
           <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[0.8125rem] text-cocoa/80">
             {services.flatMap((s) => s.treatments).map((t) => (
-              <li key={t}>{t}</li>
+              <li key={t.name}>{t.name}</li>
             ))}
           </ul>
         </div>

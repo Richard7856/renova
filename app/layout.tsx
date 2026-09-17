@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     template: `%s | ${clinic.name}`,
   },
   description:
-    "Cirugía plástica, armonización facial, bioestimuladores de colágeno y tratamientos de calidad de piel. Valoración inicial sin costo con cirujana certificada.",
+    "Cirugía plástica, armonización facial, bioestimuladores de colágeno y tratamientos de calidad de piel. Precios publicados y valoración con cirujana certificada.",
   keywords: [
     "cirugía plástica",
     "armonización facial",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     siteName: clinic.name,
     title: `${clinic.name} | ${clinic.tagline}`,
     description:
-      "Tratamientos estéticos y quirúrgicos planeados sobre tu anatomía. Valoración inicial sin costo.",
+      "Tratamientos estéticos y quirúrgicos planeados sobre tu anatomía.",
   },
   twitter: { card: "summary_large_image" },
   robots: { index: true, follow: true },
@@ -80,11 +80,23 @@ function structuredData() {
       name: doctor.name,
       medicalSpecialty: "PlasticSurgery",
     },
-    availableService: services.map((s) => ({
-      "@type": "MedicalProcedure",
-      name: s.title,
-      description: s.summary,
-    })),
+    // Un nodo por tratamiento, no por categoria: es lo que alguien busca
+    // ("precio sculptra cdmx"). Solo los que tienen precio llevan Offer.
+    availableService: services.flatMap((s) =>
+      s.treatments.map((t) => ({
+        "@type": "MedicalProcedure",
+        name: t.name,
+        category: s.title,
+        ...(t.price !== undefined && {
+          offers: {
+            "@type": "Offer",
+            price: t.price,
+            priceCurrency: "MXN",
+            ...(t.unit && { description: t.unit }),
+          },
+        }),
+      })),
+    ),
   };
 
   // Bloque de preguntas: alimenta el resultado enriquecido de FAQ en la SERP.
