@@ -290,16 +290,19 @@ export const beforeAfter = {
   title: "Pacientes reales, resultados reales",
   body: "Arrastra el control para comparar. Cada caso publicado cuenta con consentimiento informado por escrito de la paciente.",
   before: {
-    src: `${CDN}/KLz3YY5GDbbEwOvVSAqGFLXE0eI.jpg`,
+    src: `${CDN}/mtj5hoiyHHRIFp2NkDEtYGmM.jpg`,
     alt: "Rostro de paciente antes del tratamiento",
     label: "Antes",
   },
   after: {
-    src: `${CDN}/mtj5hoiyHHRIFp2NkDEtYGmM.jpg`,
+    src: `${CDN}/KLz3YY5GDbbEwOvVSAqGFLXE0eI.jpg`,
     alt: "Rostro de la misma paciente después del tratamiento",
     label: "Después",
   },
-  caseNote: "Armonización facial · 12 semanas · Paciente de 34 años",
+  // La foto muestra un caso de acne, no de armonizacion. La edad del paciente
+  // se retiro: era un dato inventado sobre una foto de stock.
+  // TODO: sustituir por un caso real con consentimiento y sus datos reales.
+  caseNote: "Faciales clínicos · control de brotes · 12 semanas",
   /** Obligatorio en publicidad medica: los resultados no son transferibles. */
   disclaimer:
     "Los resultados varían según la anatomía, la edad y el apego al plan de cada paciente. Las imágenes no constituyen una promesa de resultado.",
