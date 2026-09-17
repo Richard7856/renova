@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { clinic, doctor, nav, services } from "@/content/site";
+import { Logo } from "./logo";
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
@@ -9,14 +10,16 @@ export function SiteFooter() {
       <div className="shell">
         <div className="grid gap-12 md:grid-cols-[1.4fr_1fr_1fr] md:gap-8">
           <div>
-            <p className="font-display text-3xl text-ink">{clinic.name}</p>
+            <Logo height={96} />
             <p className="mt-4 max-w-xs text-[0.9375rem] leading-relaxed text-cocoa/85">
               {clinic.tagline}. Atención médica centrada en resultados
               naturales, seguridad y planes a la medida.
             </p>
-            <p className="mt-5 text-[0.8125rem] text-bark">
-              Responsable sanitario: {doctor.name} — {doctor.license}
-            </p>
+            {doctor.isPublished ? (
+              <p className="mt-5 text-[0.8125rem] text-bark">
+                Responsable sanitario: {doctor.name} — {doctor.license}
+              </p>
+            ) : null}
           </div>
 
           <nav aria-label="Secciones del sitio">
@@ -61,9 +64,11 @@ export function SiteFooter() {
         <div className="mt-14 border-t border-clay/25 pt-8">
           <h2 className="text-sm font-semibold text-ink">Tratamientos</h2>
           <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[0.8125rem] text-cocoa/80">
-            {services.flatMap((s) => s.treatments).map((t) => (
-              <li key={t.name}>{t.name}</li>
-            ))}
+            {services
+              .flatMap((s) => s.treatments)
+              .map((t) => (
+                <li key={t.name}>{t.name}</li>
+              ))}
           </ul>
         </div>
 

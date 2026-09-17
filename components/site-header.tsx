@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { clinic, nav } from "@/content/site";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { Logo } from "./logo";
 
 /**
  * Cabecera fija. Es cliente por dos razones concretas: el menu movil necesita
@@ -38,11 +39,8 @@ export function SiteHeader() {
       }`}
     >
       <div className="shell flex h-20 items-center justify-between">
-        <Link
-          href="#inicio"
-          className="font-display text-2xl tracking-tight text-ink"
-        >
-          {clinic.name}
+        <Link href="#inicio" aria-label={`${clinic.legalName}, inicio`}>
+          <Logo height={56} />
         </Link>
 
         <nav aria-label="Principal" className="hidden md:block">
@@ -78,9 +76,7 @@ export function SiteHeader() {
           aria-controls="menu-movil"
           className="flex h-11 w-11 items-center justify-center rounded-full border border-clay/40 md:hidden"
         >
-          <span className="sr-only">
-            {open ? "Cerrar menú" : "Abrir menú"}
-          </span>
+          <span className="sr-only">{open ? "Cerrar menú" : "Abrir menú"}</span>
           <svg width="18" height="14" viewBox="0 0 18 14" aria-hidden="true">
             <path
               d={open ? "M2 2 L16 12 M16 2 L2 12" : "M0 1h18M0 7h18M0 13h18"}

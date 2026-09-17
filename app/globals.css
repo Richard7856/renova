@@ -99,6 +99,38 @@
   }
 }
 
+/* --- Tonos de seccion -----------------------------------------------------
+   Cada seccion expone en --surface el color CONTRARIO a su fondo, y las
+   tarjetas pintan con bg-(--surface). Asi el contraste tarjeta/fondo se
+   mantiene solo cuando page.tsx reordena u oculta secciones: ya se rompio dos
+   veces a mano (dos bloques del mismo tono fundidos). */
+.tone-sage {
+  background-color: var(--color-sage);
+  --surface: var(--color-cream);
+}
+
+.tone-cream {
+  background-color: var(--color-cream);
+  --surface: var(--color-sage);
+}
+
+/* Cambio de pestana: aparicion corta. Suficiente para notar que el contenido
+   cambio sin hacer esperar a quien va comparando precios. */
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.panel-in {
+  animation: panel-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* --- Cinta de tratamientos ------------------------------------------------
    Dos copias identicas de la lista desplazandose -50%: al terminar el ciclo
    la segunda copia esta exactamente donde estaba la primera, asi el bucle no

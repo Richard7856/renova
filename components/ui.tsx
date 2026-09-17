@@ -7,27 +7,28 @@ import type { ComponentProps, ReactNode } from "react";
  * cambia aqui y no en catorce archivos.
  */
 
+export type Tone = "sage" | "cream";
+
+/**
+ * Seccion con tono. El tono no lo decide cada componente sino page.tsx, que
+ * alterna segun que secciones estan publicadas. Las tarjetas internas deben
+ * usar `bg-(--surface)`, nunca un color fijo.
+ */
 export function Section({
   id,
   children,
   className = "",
-  tone = "sage",
+  tone,
 }: {
   id?: string;
   children: ReactNode;
   className?: string;
-  tone?: "sage" | "cream" | "bark";
+  tone: Tone;
 }) {
-  const tones = {
-    sage: "bg-sage",
-    cream: "bg-cream",
-    bark: "bg-bark text-cream",
-  } as const;
-
   return (
     <section
       id={id}
-      className={`${tones[tone]} py-20 md:py-28 ${className}`}
+      className={`tone-${tone} py-20 md:py-28 ${className}`}
       /* scroll-margin duplica el scroll-padding del html para los navegadores
          que aun no lo respetan en anclajes internos. */
       style={{ scrollMarginTop: "5rem" }}

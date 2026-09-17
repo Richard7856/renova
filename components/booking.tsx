@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { clinic, interestOptions } from "@/content/site";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
-import { Section } from "./ui";
+import { Section, type Tone } from "./ui";
 
 /**
  * Formulario de cita.
@@ -20,7 +20,7 @@ import { Section } from "./ui";
  * `onSubmit` conservando la apertura de WhatsApp como confirmacion.
  * Ver DECISIONS.md.
  */
-export function Booking() {
+export function Booking({ tone }: { tone: Tone }) {
   const [name, setName] = useState("");
   const [interest, setInterest] = useState("");
   const [message, setMessage] = useState("");
@@ -35,11 +35,11 @@ export function Booking() {
   }
 
   const field =
-    "w-full rounded-media border border-clay/35 bg-sage px-4 py-3.5 text-[0.9375rem] text-cocoa placeholder:text-cocoa/45 focus:border-bark focus:outline-none";
+    "w-full rounded-media border border-clay/35 bg-(--surface) px-4 py-3.5 text-[0.9375rem] text-cocoa placeholder:text-cocoa/45 focus:border-bark focus:outline-none";
   const labelCls = "block text-sm font-medium text-cocoa";
 
   return (
-    <Section id="contacto" tone="cream">
+    <Section id="contacto" tone={tone}>
       <div className="shell grid gap-12 lg:grid-cols-2 lg:gap-20">
         <div>
           <p className="eyebrow">Agenda</p>

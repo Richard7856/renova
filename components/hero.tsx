@@ -61,17 +61,19 @@ export function Hero() {
           <TreatmentWheel />
 
           {/* Arriba a la izquierda, no abajo: el borde inferior lo ocupa ahora
-              el disco de la rueda. */}
-          <div className="absolute top-5 left-5 z-[3] flex items-center gap-3 rounded-pill bg-cream/90 px-5 py-3 backdrop-blur-sm">
-            <span className="font-display text-2xl text-ink">
-              {hero.rating.score}
-            </span>
-            <span className="text-xs leading-tight text-cocoa">
-              {hero.rating.count}+ reseñas
-              <br />
-              de pacientes
-            </span>
-          </div>
+              el disco de la rueda. Solo con calificacion real (hero.rating). */}
+          {hero.rating ? (
+            <div className="absolute top-5 left-5 z-[3] flex items-center gap-3 rounded-pill bg-cream/90 px-5 py-3 backdrop-blur-sm">
+              <span className="font-display text-2xl text-ink">
+                {hero.rating.score}
+              </span>
+              <span className="text-xs leading-tight text-cocoa">
+                {hero.rating.count}+ reseñas
+                <br />
+                de pacientes
+              </span>
+            </div>
+          ) : null}
         </div>
       </div>
     </section>

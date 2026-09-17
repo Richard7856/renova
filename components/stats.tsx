@@ -2,6 +2,8 @@ import { stats } from "@/content/site";
 import { Reveal } from "./reveal";
 
 export function Stats() {
+  if (stats.length === 0) return null;
+
   return (
     <section className="bg-bark py-16 text-cream md:py-20">
       <div className="shell grid grid-cols-2 gap-10 md:grid-cols-4">

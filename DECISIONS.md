@@ -301,3 +301,123 @@ y el velo, que ya deja el sitio mejor que el original.
 Subirlo a 0.28 reduce la superficie problemática del 62% al 35% oscureciendo la
 foto de forma apenas perceptible. Si se cambia la fotografía del hero **hay que
 volver a medir**: el contraste depende de esos píxeles, no del CSS.
+
+---
+
+## [2026-09-16] Servicios en pestañas en lugar de tarjetas apiladas
+
+**Context:** Con los precios del PDF, la sección de Servicios medía 2,560 px en
+escritorio: cinco tarjetas con foto grande una debajo de otra. El scrollytelling
+previsto a continuación la habría vuelto interminable.
+
+**Decision:** Una categoría visible a la vez, con pestañas arriba
+(`components/service-tabs.tsx`). Resultado medido: **1,064 px en escritorio
+(−58%)**.
+
+- Patrón ARIA de *tabs* completo: `tablist`/`tab`/`tabpanel`, foco itinerante
+  y flechas, Inicio y Fin, con activación automática.
+- **Los cinco paneles están siempre en el HTML**; los inactivos llevan `hidden`.
+  Google indexa todos los precios, no solo los de la pestaña abierta.
+- Enlace directo por slug (`/#inyectables`) para compartir precios concretos.
+- Cada panel tiene su propio botón a WhatsApp con el tratamiento ya indicado.
+- En móvil la fila de pestañas se desplaza en horizontal en vez de partirse.
+
+**Alternatives considered:** Acordeón (una categoría desplegable por fila):
+resuelve la altura, pero oculta las fotos y en escritorio desperdicia el ancho.
+Un menú de precios sin fotos: más compacto, pero pierde el tono visual del sitio.
+
+**Risks/Limitations:** Los paneles miden distinto (796–982 px en móvil), así
+que lo que hay debajo se desplaza al cambiar de pestaña. Al ser un cambio
+iniciado por el usuario, no penaliza el CLS.
+
+Un bug encontrado en pruebas: el teclado calculaba la siguiente pestaña desde
+el estado de React, que con pulsaciones rápidas va un evento atrasado — dos
+flechas seguidas no envolvían. Ahora el índice sale de la pestaña con foco.
+
+---
+
+## [2026-09-16] Contenido sin fuente, oculto tras interruptores
+
+**Context:** Varios bloques de la plantilla seguían en producción con datos
+inventados que una clínica real no puede sostener: testimonios con nombre,
+cifras ("2,000+ procedimientos"; "50+ tratamientos" ya era falso, el catálogo
+tiene 26), calificación "5.0 · 86 reseñas", una cirujana ficticia con cédula
+`0000000` y un caso antes/después con fotos de stock que afirmaba consentimiento
+de una paciente real.
+
+**Decision:** Ninguno se borra; cada uno queda detrás de un interruptor en
+`content/site.ts`:
+
+| Bloque | Interruptor |
+|---|---|
+| Testimonios | `testimonials` vacío |
+| Franja de cifras | `stats` vacío |
+| Calificación del hero | `hero.rating: null` |
+| Ficha de la cirujana, pie y JSON-LD `Physician` | `doctor.isPublished` |
+| Antes/después y su entrada en el menú | `beforeAfter.isPublished` |
+
+El menú se deriva de lo publicado, para no enlazar nunca a un ancla inexistente.
+
+**Alternatives considered:** Dejarlos con aviso de "ejemplo". En una web médica
+en producción, un testimonio o una cédula de ejemplo se leen como reales.
+
+**Risks/Limitations:** Sin prueba social la página convence menos. Es
+deliberado: la prueba social inventada es peor que ninguna, y es sancionable
+(Profeco, COFEPRIS).
+
+---
+
+## [2026-09-16] Tonos de sección asignados automáticamente
+
+**Context:** Dos veces se fundieron secciones contiguas del mismo color al
+reordenar o añadir bloques. Al ocultar secciones con los interruptores anteriores
+iba a volver a pasar.
+
+**Decision:** Los componentes ya no eligen su fondo. `page.tsx` alterna
+`cream`/`sage` **solo entre las secciones visibles**, y cada sección expone en
+`--surface` el color contrario para sus tarjetas (`bg-(--surface)`).
+
+**Alternatives considered:** Seguir fijando el tono a mano en cada componente:
+funciona hasta el siguiente cambio de orden, que es justo cuando falla.
+
+**Risks/Limitations:** Una tarjeta nueva con color fijo en vez de
+`bg-(--surface)` vuelve a romper el contraste. La franja de cifras y el cierre
+son café y quedan fuera de la alternancia.
+
+---
+
+## [2026-09-16] Logo oficial usado como máscara
+
+**Context:** El logo de la clínica es un PNG apilado en dorado (#BAA276). Sobre
+el fondo salvia da **1.67:1**: en la cabecera prácticamente desaparece (se ve
+igual en el sitio original). Además, sus dos líneas de lema miden ~4 px a
+tamaño de cabecera.
+
+**Decision:** El PNG se usa como máscara CSS pintada con `currentColor` (café,
+5.6:1), recortada por encima del lema. La URL de la máscara la genera
+`getImageProps` de `next/image`, que es del mismo origen: una máscara con una
+imagen de otro dominio requiere CORS, y el CDN no lo garantiza.
+
+**Alternatives considered:** Aplicar `filter` al PNG para oscurecerlo: los
+filtros no llegan a un color exacto y el dorado se vuelve verdoso. Mantener el
+dorado: es el color de marca, pero no se lee.
+
+**Risks/Limitations:** Es un cambio sobre la identidad de la clínica. Para
+volver al dorado: `<Logo className="text-[#BAA276]" />`.
+
+**Improvement opportunities:** Pedir el logo en SVG y en versión horizontal. Con
+el SVG, el componente se reduce a `<svg fill="currentColor">`.
+
+---
+
+## [2026-09-16] Botón flotante de WhatsApp que se oculta al bajar
+
+**Context:** En móvil el botón tapaba la columna de precios justo mientras se
+leía.
+
+**Decision:** Se oculta al bajar y reaparece al subir, con un umbral de 8 px
+contra el rebote de iOS. Cerca del inicio siempre está visible. Oculto sigue
+siendo tabulable y reaparece al recibir foco.
+
+**Risks/Limitations:** Deja de ser un componente de servidor. Coste: un
+listener de scroll pasivo.

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useId, useState } from "react";
 import { beforeAfter } from "@/content/site";
-import { Section, SectionHeading } from "./ui";
+import { Section, SectionHeading, type Tone } from "./ui";
 
 /**
  * Comparador arrastrable antes/despues.
@@ -20,12 +20,12 @@ import { Section, SectionHeading } from "./ui";
  * NO se reescale al mover el control: si se animara el ancho, la cara se
  * deformaria y la comparacion dejaria de ser honesta.
  */
-export function BeforeAfter() {
+export function BeforeAfter({ tone }: { tone: Tone }) {
   const [position, setPosition] = useState(50);
   const id = useId();
 
   return (
-    <Section id="resultados">
+    <Section id="resultados" tone={tone}>
       <div className="shell">
         <SectionHeading
           eyebrow={beforeAfter.eyebrow}
@@ -34,7 +34,7 @@ export function BeforeAfter() {
         />
 
         <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,520px)_1fr] lg:items-center">
-          <div className="relative select-none overflow-hidden rounded-card bg-cream">
+          <div className="relative select-none overflow-hidden rounded-card bg-(--surface)">
             <div className="relative aspect-[3/4]">
               <Image
                 src={beforeAfter.before.src}
@@ -116,7 +116,7 @@ export function BeforeAfter() {
             </p>
 
             {/* Aviso legal: obligatorio y deliberadamente no escondido. */}
-            <p className="mt-8 rounded-media border border-clay/30 bg-cream p-5 text-[0.8125rem] leading-relaxed text-cocoa">
+            <p className="mt-8 rounded-media border border-clay/30 bg-(--surface) p-5 text-[0.8125rem] leading-relaxed text-cocoa">
               <strong className="font-semibold">Aviso.</strong>{" "}
               {beforeAfter.disclaimer}
             </p>

@@ -1,10 +1,14 @@
 import { testimonials } from "@/content/site";
 import { Reveal } from "./reveal";
-import { Section, SectionHeading } from "./ui";
+import { Section, SectionHeading, type Tone } from "./ui";
 
-export function Testimonials() {
+export function Testimonials({ tone }: { tone: Tone }) {
+  // Sin testimonios reales no hay seccion: un bloque vacio o con relleno
+  // resta mas confianza de la que aporta.
+  if (testimonials.length === 0) return null;
+
   return (
-    <Section tone="cream">
+    <Section tone={tone}>
       <div className="shell">
         <SectionHeading
           eyebrow="Testimonios"
@@ -22,7 +26,7 @@ export function Testimonials() {
               className="w-[85%] shrink-0 snap-start md:w-auto"
             >
               <Reveal delay={i * 70} className="h-full">
-                <figure className="flex h-full flex-col rounded-card bg-sage p-7">
+                <figure className="flex h-full flex-col rounded-card bg-(--surface) p-7">
                   <blockquote className="flex-1 text-[0.9375rem] leading-relaxed text-cocoa">
                     {t.quote}
                   </blockquote>

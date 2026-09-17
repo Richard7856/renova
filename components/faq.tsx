@@ -1,5 +1,5 @@
 import { faq } from "@/content/site";
-import { Section, SectionHeading } from "./ui";
+import { Section, SectionHeading, type Tone } from "./ui";
 
 /**
  * Acordeon con <details>/<summary> nativos.
@@ -9,9 +9,9 @@ import { Section, SectionHeading } from "./ui";
  * trae expandido/colapsado, teclado y busqueda en pagina de fabrica, y permite
  * que TODO este bloque sea un componente de servidor: cero KB de JS.
  */
-export function Faq() {
+export function Faq({ tone }: { tone: Tone }) {
   return (
-    <Section id="preguntas">
+    <Section id="preguntas" tone={tone}>
       <div className="shell grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
         <SectionHeading
           eyebrow="Preguntas frecuentes"

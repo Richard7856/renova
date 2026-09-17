@@ -75,11 +75,17 @@ function structuredData() {
       addressCountry: clinic.address.country,
     },
     openingHours: ["Mo-Fr 09:00-19:00", "Sa 09:00-14:00"],
-    employee: {
-      "@type": "Physician",
-      name: doctor.name,
-      medicalSpecialty: "PlasticSurgery",
-    },
+    // Ternario y no `&&`: con isPublished tipado como el literal `false`,
+    // TypeScript rechaza hacer spread de un booleano.
+    ...(doctor.isPublished
+      ? {
+          employee: {
+            "@type": "Physician",
+            name: doctor.name,
+            medicalSpecialty: "PlasticSurgery",
+          },
+        }
+      : {}),
     // Un nodo por tratamiento, no por categoria: es lo que alguien busca
     // ("precio sculptra cdmx"). Solo los que tienen precio llevan Offer.
     availableService: services.flatMap((s) =>
@@ -120,7 +126,11 @@ export default function RootLayout({
     <html lang="es-MX" className={display.variable}>
       <head>
         <link rel="preconnect" href="https://api.fontshare.com" />
-        <link rel="preconnect" href="https://cdn.fontshare.com" crossOrigin="" />
+        <link
+          rel="preconnect"
+          href="https://cdn.fontshare.com"
+          crossOrigin=""
+        />
         <link
           rel="stylesheet"
           href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap"

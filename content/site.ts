@@ -43,6 +43,18 @@ export const clinic = {
     { days: "Sábados", time: "9:00 – 14:00" },
   ],
 
+  /** Logo oficial (PNG transparente, dorado #BAA276), tomado del sitio de la
+   *  clinica. Es apilado: icono, "RENOVA", "STUDIO" y dos lineas de lema.
+   *  `visibleRatio` es la fraccion superior que se muestra: el lema mide ~4px
+   *  a tamano de cabecera, ilegible, asi que se recorta.
+   *  TODO: pedir el logo en SVG y una version horizontal para la cabecera. */
+  logo: {
+    src: `${CDN}/Vu5uEIp8p5j5G1Xvcudp2y8UIhs.png`,
+    width: 647,
+    height: 630,
+    visibleRatio: 0.84,
+  },
+
   social: {
     instagram: "https://instagram.com/",
     facebook: "https://facebook.com/",
@@ -51,7 +63,11 @@ export const clinic = {
 } as const;
 
 export const doctor = {
-  // TODO: nombre, cedula y especialidad reales del cirujano responsable
+  /** Oculto mientras los datos sean de relleno: una cedula "0000000" en un
+   *  sitio publicado es una credencial medica falsa, no un placeholder.
+   *  Afecta a la ficha en "Nosotros", al pie y al JSON-LD.
+   *  TODO: cargar nombre, cedula y credenciales reales y pasar a true. */
+  isPublished: false,
   name: "Dra. Ana Beltrán",
   role: "Cirujana plástica y reconstructiva",
   /** En Mexico la cedula de especialidad es obligatoria en publicidad medica
@@ -64,14 +80,6 @@ export const doctor = {
   portrait: `${CDN}/GxQO8asItSl76Fw0bPEJgPjibvI.jpg`,
 } as const;
 
-export const nav = [
-  { label: "Inicio", href: "#inicio" },
-  { label: "Servicios", href: "#servicios" },
-  { label: "Resultados", href: "#resultados" },
-  { label: "Nosotros", href: "#nosotros" },
-  { label: "Preguntas", href: "#preguntas" },
-] as const;
-
 export const hero = {
   eyebrow: "Cirugía plástica · Medicina estética",
   title: "Renova sin dejar de ser tú",
@@ -81,7 +89,10 @@ export const hero = {
   image: `${CDN}/nzLcI2gIko5jP7H7JHhs97DQ0.jpg`,
   imageAlt:
     "Consultorio de la clínica con luz natural y mobiliario en tonos cálidos",
-  rating: { score: "5.0", count: 86 },
+  /** Calificacion del distintivo del hero. null = no se muestra.
+   *  El "5.0 · 86 reseñas" venia de la plantilla, sin fuente.
+   *  TODO: usar la calificacion real de Google Maps cuando exista. */
+  rating: null as { score: string; count: number } | null,
 } as const;
 
 /**
@@ -121,6 +132,8 @@ export type Treatment = {
 export type Service = {
   slug: string;
   title: string;
+  /** Rotulo de la pestana. El titulo completo no cabe en una fila en movil. */
+  tabLabel: string;
   summary: string;
   treatments: Treatment[];
   /** Aviso que la clinica exige mostrar junto al bloque. */
@@ -137,6 +150,7 @@ export type Service = {
 export const services: Service[] = [
   {
     slug: "cirugia-plastica",
+    tabLabel: "Cirugía",
     title: "Cirugía Plástica y Reconstructiva",
     summary:
       "Procedimientos quirúrgicos planeados en consulta, con estudio previo y seguimiento postoperatorio.",
@@ -160,6 +174,7 @@ export const services: Service[] = [
   },
   {
     slug: "inyectables",
+    tabLabel: "Inyectables",
     title: "Inyectables y Armonización Facial",
     summary:
       "Ajustes milimétricos que descansan la expresión y equilibran las proporciones del rostro sin borrar tus rasgos.",
@@ -186,6 +201,7 @@ export const services: Service[] = [
   },
   {
     slug: "bioestimuladores",
+    tabLabel: "Bioestimuladores",
     title: "Bioestimuladores de Colágeno",
     summary:
       "En lugar de rellenar, estimulan que tu piel produzca colágeno propio. El resultado aparece de forma gradual y sostiene la firmeza por más tiempo.",
@@ -199,6 +215,7 @@ export const services: Service[] = [
   },
   {
     slug: "skin-quality",
+    tabLabel: "Skin Quality",
     title: "Skin Quality y Regeneración Cutánea",
     summary:
       "Terapias de calidad de piel para ojeras, tercio medio y textura, apoyadas en biotecnología regenerativa.",
@@ -221,6 +238,7 @@ export const services: Service[] = [
   },
   {
     slug: "faciales-clinicos",
+    tabLabel: "Faciales",
     title: "Faciales Clínicos y Cuidado de la Piel",
     summary:
       "Protocolos de mantenimiento realizados por personal clínico, no cosmético: limpieza profunda, renovación y control de brotes.",
@@ -286,6 +304,11 @@ export const about = {
 } as const;
 
 export const beforeAfter = {
+  /** Oculto: las fotos son de stock y el texto afirma consentimiento de una
+   *  paciente real. Presentar resultados que no son de pacientes de la clinica
+   *  es publicidad enganosa en salud (COFEPRIS).
+   *  TODO: cargar un caso real con consentimiento firmado y pasar a true. */
+  isPublished: false,
   eyebrow: "Resultados",
   title: "Pacientes reales, resultados reales",
   body: "Arrastra el control para comparar. Cada caso publicado cuenta con consentimiento informado por escrito de la paciente.",
@@ -308,39 +331,21 @@ export const beforeAfter = {
     "Los resultados varían según la anatomía, la edad y el apego al plan de cada paciente. Las imágenes no constituyen una promesa de resultado.",
 } as const;
 
-export const stats = [
-  { value: "10+", label: "Años de práctica médica" },
-  { value: "2,000+", label: "Procedimientos realizados" },
-  { value: "50+", label: "Tratamientos en catálogo" },
-  { value: "99%", label: "Pacientes que recomiendan" },
-] as const;
+/**
+ * Cifras de la franja cafe. Vacio = la franja no se renderiza.
+ * Las de la plantilla ("2,000+ procedimientos", "99% recomiendan"...) no tenian
+ * fuente, y "50+ tratamientos" ya era falso: el catalogo tiene 26.
+ * TODO: cargar solo cifras que la clinica pueda sostener.
+ */
+export const stats: { value: string; label: string }[] = [];
 
-export const testimonials = [
-  {
-    quote:
-      "Me escucharon de verdad y me explicaron cada paso antes de tocarme. Salí sabiendo exactamente qué esperar.",
-    name: "Sofía H.",
-    detail: "Armonización facial",
-  },
-  {
-    quote:
-      "Llegué nerviosa porque no quería verme operada. El resultado se ve completamente natural, nadie sabe qué me hice.",
-    name: "Olivia C.",
-    detail: "Toxina botulínica",
-  },
-  {
-    quote:
-      "Clínica impecable y equipo profesional. El postoperatorio fue mucho más llevadero de lo que imaginaba.",
-    name: "Priya M.",
-    detail: "Mamoplastia",
-  },
-  {
-    quote:
-      "El plan fue claro desde el inicio: cuántas sesiones, cuánto costaba y en cuánto tiempo iba a ver cambios.",
-    name: "Daniel B.",
-    detail: "Bioestimuladores",
-  },
-] as const;
+/**
+ * Testimonios. Vacio = la seccion no se renderiza.
+ * Los de la plantilla eran inventados; publicar resenas falsas es sancionable
+ * (Profeco). TODO: usar resenas reales, idealmente de Google Maps, con permiso.
+ */
+export const testimonials: { quote: string; name: string; detail: string }[] =
+  [];
 
 export const faq = [
   {
@@ -419,3 +424,20 @@ export const wheel = {
   discLabel: "Lista de tratamientos",
   discHref: "#servicios",
 } as const;
+
+/**
+ * Menu principal. Se deriva de lo publicado para que nunca apunte a una
+ * seccion oculta: un enlace a un ancla inexistente no hace nada al pulsarlo.
+ */
+export const nav = [
+  { label: "Inicio", href: "#inicio" },
+  { label: "Tratamientos", href: "#servicios" },
+  // Ancla propia: salta directo a las pestanas, que es lo que busca quien
+  // llega preguntando cuanto cuesta.
+  { label: "Precios", href: "#precios" },
+  ...(beforeAfter.isPublished
+    ? [{ label: "Resultados", href: "#resultados" }]
+    : []),
+  { label: "Nosotros", href: "#nosotros" },
+  { label: "Preguntas", href: "#preguntas" },
+];

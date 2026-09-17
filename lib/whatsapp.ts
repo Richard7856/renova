@@ -1,7 +1,8 @@
 import { clinic } from "@/content/site";
 
 export type LeadDraft = {
-  name: string;
+  /** Opcional: los botones de las pestanas de servicios no piden nombre. */
+  name?: string;
   interest: string;
   message?: string;
 };
@@ -22,7 +23,7 @@ export function buildWhatsAppUrl(lead?: LeadDraft): string {
 
   const text = lead
     ? [
-        `Hola, soy ${lead.name.trim()}.`,
+        lead.name?.trim() ? `Hola, soy ${lead.name.trim()}.` : "Hola.",
         `Me interesa: ${lead.interest}.`,
         lead.message?.trim() ? `\n${lead.message.trim()}` : "",
         `\nMe gustaría agendar una valoración.`,

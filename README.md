@@ -19,6 +19,22 @@ npm run typecheck
 | Ajustar la rueda (radio, grosor, disco, velocidad) | variables `.wheel` en `app/globals.css` |
 | Reordenar secciones | `app/page.tsx` |
 
+## Bloques ocultos hasta tener datos reales
+
+Estos bloques están listos pero apagados en `content/site.ts`, porque su
+contenido de plantilla era inventado:
+
+| Para mostrar… | Cambia |
+|---|---|
+| Testimonios | llena `testimonials` |
+| Franja de cifras | llena `stats` |
+| Calificación en el hero | `hero.rating` |
+| Ficha de la cirujana y cédula | `doctor.isPublished: true` |
+| Caso antes/después | `beforeAfter.isPublished: true` |
+| Plan de mantenimiento | `maintenancePlan.isPublished: true` |
+
+Los tonos de fondo y el menú se ajustan solos.
+
 ## Antes de publicar
 
 ```bash
